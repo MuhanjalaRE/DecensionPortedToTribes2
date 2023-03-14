@@ -641,7 +641,7 @@ namespace game_data {
 	/* static */ FVector2D screen_size = FVector2D();
 	/* static */ FVector2D screen_center = FVector2D();
 
-	enum class Weapon { none, disk, cg, gl, blaster, plasma, sniper, shocklance, unknown };
+	enum class Weapon { none, disc, cg, gl, blaster, plasma, sniper, shocklance, unknown };
 	enum class WeaponType { kHitscan, kProjectileLinear, kProjectileArching };
 
 	namespace information {
@@ -652,12 +652,12 @@ namespace game_data {
 				float inheritence;
 			};
 
-			struct Disk : Weapon {
-				Disk() {
+			struct disc : Weapon {
+				disc() {
 					bullet_speed = 95;
 					inheritence = 0.75;
 				}
-			} disk;
+			} disc;
 
 			struct Chaingun : Weapon {
 				Chaingun() {
@@ -668,7 +668,7 @@ namespace game_data {
 
 			struct Grenadelauncher : Weapon {
 				Grenadelauncher() {
-					bullet_speed = 4700;
+					bullet_speed = 0;
 					inheritence = 0.75;
 				}
 			} grenadelauncher;
@@ -682,7 +682,7 @@ namespace game_data {
 
 			struct Blaster : Weapon {
 				Blaster() {
-					bullet_speed = 200;
+					bullet_speed = 90;
 					inheritence = 0.5;
 				}
 			} blaster;
@@ -741,8 +741,13 @@ namespace game_data {
 				math::Matrix matrix = GET_OBJECT_VARIABLE_BY_OFFSET(math::Matrix, character, 156);
 				FVector player_bottom = matrix.GetColumn(3);
 
-				hooks::OriginalGetEyeTransform(character, &matrix);
-				eye_ = matrix.GetColumn(3);
+				//hooks::OriginalGetEyeTransform(character, &matrix); <- causes a crash for players other than the client player
+				//eye_ = matrix.GetColumn(3);
+
+				void* player_data = GET_OBJECT_VARIABLE_BY_OFFSET(void*, character, 648 * 4);
+				FVector player_bounding_box = GET_OBJECT_VARIABLE_BY_OFFSET(FVector, player_data, 1320);
+				eye_ = player_bottom;
+				eye_.Z += player_bounding_box.Z;
 
 				location_ = FVector(eye_.X, eye_.Y, (eye_.Z + player_bottom.Z) / 2);
 				velocity_ = GET_OBJECT_VARIABLE_BY_OFFSET(FVector, character, 2392);
@@ -801,9 +806,21 @@ namespace game_data {
 }  // namespace game_data
 
 namespace game_functions {
-	bool InLineOfSight(void* actor) {
+	bool InLineOfSight(game_data::information::GameActor* actor) {
+		static RayInfo ray_info;
+		FVector start = game_data::my_player.eye_;
+		start += game_data::my_player.forward_vector_.Unit() * 4;
+		bool line_of_sight = hooks::OriginalCastRay(hooks::container, start, actor->location_, 0xFFFFFFFF, &ray_info);
+		if (ray_info.object) {
+			void* namespace_ = GET_OBJECT_VARIABLE_BY_OFFSET(void*, ray_info.object, 36);
+			if (namespace_) {
+				char* namespace_name_ = GET_OBJECT_VARIABLE_BY_OFFSET(char*, namespace_, 0);
+				if (std::string(namespace_name_) == "Player") {
+					return true;
+				}
+			}
+		}
 		return false;
-		/*return game_data::local_player_controller->LineOfSightTo(actor, FVector(), false);*/
 	}
 
 	// float fovv = 120;
@@ -950,7 +967,7 @@ namespace aimbot {
 		bool enabled_aimbot = false;
 		bool target_everyone = true;  // if we want to do prediction on every single player
 
-		float tempest_ping_in_ms = 0;   //-90
+		float disc_ping_in_ms = 0;   //-90
 		float chaingun_ping_in_ms = 0;  //-50
 		float grenadelauncher_ping_in_ms = 0;
 		float plasmagun_ping_in_ms = 0;
@@ -964,7 +981,7 @@ namespace aimbot {
 		float aimbot_horizontal_fov_angle_cos_sqr = 0;  // 0.75;
 
 		bool friendly_fire = false;
-		bool need_line_of_sight = false;
+		bool need_line_of_sight = true;
 
 		int aimbot_poll_frequency = 60 * 1;
 
@@ -1001,10 +1018,10 @@ namespace aimbot {
 
 		switch (game_data::my_player.weapon_) {
 			using namespace game_data::information;
-		case game_data::Weapon::disk:
-			projectileSpeed = weapon_speeds.disk.bullet_speed;
-			inheritence = weapon_speeds.disk.inheritence;
-			ping = aimbot::aimbot_settings.tempest_ping_in_ms;
+		case game_data::Weapon::disc:
+			projectileSpeed = weapon_speeds.disc.bullet_speed;
+			inheritence = weapon_speeds.disc.inheritence;
+			ping = aimbot::aimbot_settings.disc_ping_in_ms;
 			break;
 		case game_data::Weapon::cg:
 			projectileSpeed = weapon_speeds.chaingun.bullet_speed;
@@ -1040,16 +1057,16 @@ namespace aimbot {
 			return true;
 		}
 
-		/*
+		
 		if (game_data::my_player.weapon_type_ == game_data::WeaponType::kProjectileArching) {
-			return PredictAimAtTargetDL(target_player, output_vector, offset);
+			return false;
 		}
-		*/
+		
 
 		if (game_data::my_player.weapon_type_ != game_data::WeaponType::kProjectileArching && game_data::my_player.weapon_type_ != game_data::WeaponType::kProjectileLinear)
 			return false;
 
-		FVector owner_location = game_data::my_player.location_ - offset * 0;
+		FVector owner_location = game_data::my_player.location_ - offset * 1;
 		FVector owner_velocity = game_data::my_player.velocity_;
 
 		// owner_location = owner_location - owner_velocity * (weapon_parameters_.self_compensation_ping_ / 1000.0);
@@ -1165,7 +1182,7 @@ namespace aimbot {
 
 				game_data::information::Player* p = (game_data::information::Player*)&*player;
 				bool same_team = game_data::my_player.IsSameTeam(p);
-				bool line_of_sight = game_functions::InLineOfSight(player->character_);
+				bool line_of_sight = game_functions::InLineOfSight(p);
 				if ((same_team && !aimbot_settings.friendly_fire) || (!game_functions::IsInFieldOfView(player->location_) && aimbot_settings.aimbot_mode == AimbotMode::kClosestXhair) || (!line_of_sight && aimbot_settings.need_line_of_sight))
 					continue;
 
@@ -1252,7 +1269,7 @@ namespace aimbot {
 						if (aimbot_settings.triggerbot_enabled) {
 							float width = esp::esp_settings.width_to_height_ratio * height;
 							if (abs(game_data::screen_center.X - projection.X) < width && abs(game_data::screen_center.Y - projection.Y) < height) {
-								if (game_data::my_player.weapon_ == game_data::Weapon::disk || game_data::my_player.weapon_ == game_data::Weapon::gl || game_data::my_player.weapon_ == game_data::Weapon::plasma || game_data::my_player.weapon_ == game_data::Weapon::blaster) {
+								if (game_data::my_player.weapon_ == game_data::Weapon::disc || game_data::my_player.weapon_ == game_data::Weapon::gl || game_data::my_player.weapon_ == game_data::Weapon::plasma || game_data::my_player.weapon_ == game_data::Weapon::blaster) {
 									other::SendLeftMouseClick();
 								}
 							}
@@ -1312,7 +1329,7 @@ namespace aimbot {
 
 				game_data::information::Player* p = (game_data::information::Player*)&*player;
 				bool same_team = game_data::my_player.IsSameTeam(p);
-				bool line_of_sight = game_functions::InLineOfSight(player->character_);
+				bool line_of_sight = game_functions::InLineOfSight(p);
 
 				if ((same_team && !aimbot_settings.friendly_fire) || (!game_functions::IsInFieldOfView(player->location_) && aimbot_settings.aimbot_mode == AimbotMode::kClosestXhair) || (!line_of_sight && aimbot_settings.need_line_of_sight))
 					continue;
@@ -1338,7 +1355,7 @@ namespace aimbot {
 						if (aimbot_settings.triggerbot_enabled) {
 							float width = esp::esp_settings.width_to_height_ratio * height;
 							if (abs(game_data::screen_center.X - projection.X) < width && abs(game_data::screen_center.Y - projection.Y) < height) {
-								if (game_data::my_player.weapon_ == game_data::Weapon::disk || game_data::my_player.weapon_ == game_data::Weapon::gl || game_data::my_player.weapon_ == game_data::Weapon::plasma || game_data::my_player.weapon_ == game_data::Weapon::blaster) {
+								if (game_data::my_player.weapon_ == game_data::Weapon::disc || game_data::my_player.weapon_ == game_data::Weapon::gl || game_data::my_player.weapon_ == game_data::Weapon::plasma || game_data::my_player.weapon_ == game_data::Weapon::blaster) {
 									other::SendLeftMouseClick();
 								}
 							}
@@ -1525,7 +1542,7 @@ namespace imgui {
 				if (ImGui::CollapsingHeader("Target settings")) {
 					ImGui::Indent();
 					ImGui::Checkbox("Friendly fire", &aimbot::aimbot_settings.friendly_fire);
-					// ImGui::Checkbox("Need line of sight", &aimbot::aimbot_settings.need_line_of_sight);
+					ImGui::Checkbox("Need line of sight", &aimbot::aimbot_settings.need_line_of_sight);
 					ImGui::Checkbox("Target everyone", &aimbot::aimbot_settings.target_everyone);
 					if (!aimbot::aimbot_settings.target_everyone) {
 						ImGui::Checkbox("Stay locked on to target", &aimbot::aimbot_settings.stay_locked_to_target);
@@ -1538,7 +1555,7 @@ namespace imgui {
 					ImGui::Indent();
 					if (ImGui::CollapsingHeader("Pings")) {
 						ImGui::Indent();
-						ImGui::SliderFloat("Tempest ping", &aimbot::aimbot_settings.tempest_ping_in_ms, -300, 300);
+						ImGui::SliderFloat("Disc ping", &aimbot::aimbot_settings.disc_ping_in_ms, -300, 300);
 						ImGui::SliderFloat("Chaingun ping", &aimbot::aimbot_settings.chaingun_ping_in_ms, -300, 300);
 						ImGui::SliderFloat("Grenade Launcher ping", &aimbot::aimbot_settings.grenadelauncher_ping_in_ms, -300, 300);
 						ImGui::SliderFloat("Plasma Gun ping", &aimbot::aimbot_settings.plasmagun_ping_in_ms, -300, 300);
@@ -1548,17 +1565,17 @@ namespace imgui {
 
 					if (ImGui::CollapsingHeader("Bullet speeds")) {
 						ImGui::Indent();
-						ImGui::SliderFloat("Tempest speed", &game_data::information::weapon_speeds.disk.bullet_speed, 0, 1E5);
-						ImGui::SliderFloat("Chaingun speed", &game_data::information::weapon_speeds.chaingun.bullet_speed, 0, 1E5);
-						ImGui::SliderFloat("Grenadelauncher speed", &game_data::information::weapon_speeds.grenadelauncher.bullet_speed, 0, 1E5);
-						ImGui::SliderFloat("Plasma speed", &game_data::information::weapon_speeds.plasma.bullet_speed, 0, 1E5);
-						ImGui::SliderFloat("Blaster speed", &game_data::information::weapon_speeds.blaster.bullet_speed, 0, 1E5);
+						ImGui::SliderFloat("Disc speed", &game_data::information::weapon_speeds.disc.bullet_speed, 0, 200);
+						ImGui::SliderFloat("Chaingun speed", &game_data::information::weapon_speeds.chaingun.bullet_speed, 0, 900);
+						ImGui::SliderFloat("Grenadelauncher speed", &game_data::information::weapon_speeds.grenadelauncher.bullet_speed, 0, 0);
+						ImGui::SliderFloat("Plasma speed", &game_data::information::weapon_speeds.plasma.bullet_speed, 0, 110);
+						ImGui::SliderFloat("Blaster speed", &game_data::information::weapon_speeds.blaster.bullet_speed, 0, 400);
 						ImGui::Unindent();
 					}
 
 					if (ImGui::CollapsingHeader("Inheritence")) {
 						ImGui::Indent();
-						ImGui::SliderFloat("Tempest inheritence", &game_data::information::weapon_speeds.disk.inheritence, 0, 1);
+						ImGui::SliderFloat("Disc inheritence", &game_data::information::weapon_speeds.disc.inheritence, 0, 1);
 						ImGui::SliderFloat("Chaingun inheritence", &game_data::information::weapon_speeds.chaingun.inheritence, 0, 1);
 						ImGui::SliderFloat("Grenadelauncher inheritence", &game_data::information::weapon_speeds.grenadelauncher.inheritence, 0, 1);
 						ImGui::SliderFloat("Plasma inheritence", &game_data::information::weapon_speeds.plasma.inheritence, 0, 1);
@@ -1956,7 +1973,7 @@ namespace hooks {
 						game_data::my_player.weapon_type_ = game_data::WeaponType::kProjectileLinear;
 					}
 					else if (weapon_string == "weapon_disc.dts") {
-						game_data::my_player.weapon_ = game_data::Weapon::disk;
+						game_data::my_player.weapon_ = game_data::Weapon::disc;
 						game_data::my_player.weapon_type_ = game_data::WeaponType::kProjectileLinear;
 					}
 					else if (weapon_string == "weapon_grenade_launcher.dts") {
