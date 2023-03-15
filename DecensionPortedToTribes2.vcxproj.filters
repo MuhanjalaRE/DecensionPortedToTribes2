@@ -7,6 +7,9 @@
     <Filter Include="detours">
       <UniqueIdentifier>{4e722341-9a8e-4a3a-b0d7-5b2c0115250e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="plog">
+      <UniqueIdentifier>{549ef4fd-7005-4c49-ad5b-e562e456c7a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="imgui\imgui_demo.cpp">
@@ -59,6 +62,9 @@
     </ClInclude>
     <ClInclude Include="detours\detours.h">
       <Filter>detours</Filter>
+    </ClInclude>
+    <ClInclude Include="plog\Init.h">
+      <Filter>plog</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

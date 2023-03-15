@@ -8,8 +8,17 @@
 #include <imgui/imgui_impl_opengl2.h>
 #include <imgui/imgui_impl_win32.h>
 
+#ifndef _DEBUG
+#define PLOG_DISABLE_LOGGING
+#endif
+
 #ifdef _DEBUG
 #include <iostream>
+#include <plog/Log.h>
+#include <plog/Logger.h>
+#include <plog/Init.h>
+#include <plog/Formatters/TxtFormatter.h>
+#include <plog/Appenders/ColorConsoleAppender.h>
 #endif
 
 #define GET_OBJECT_VARIABLE_BY_OFFSET(variable_type, object_pointer, offset_in_bytes) *((variable_type*)(((unsigned int)(object_pointer)) + (offset_in_bytes)))
@@ -70,6 +79,7 @@ struct FVector
 	friend bool operator!=(const FVector& first, const FVector& second) { return !(first == second); }
 
 };
+typedef FVector FRotator;
 struct FVector2D
 {
 	float X;
@@ -692,7 +702,7 @@ namespace game_data {
 		public:
 			int team_id_ = -1;
 			FVector location_;
-			//FRotator rotation_;
+			FRotator rotation_;
 			FVector velocity_;
 			// FVector velocity_previous_;
 			FVector forward_vector_;
@@ -752,6 +762,11 @@ namespace game_data {
 				location_ = FVector(eye_.X, eye_.Y, (eye_.Z + player_bottom.Z) / 2);
 				velocity_ = GET_OBJECT_VARIABLE_BY_OFFSET(FVector, character, 2392);
 				forward_vector_ = matrix.GetColumn(1);
+
+				FVector rot_ = GET_OBJECT_VARIABLE_BY_OFFSET(FVector, character, 2380);
+				FVector head_ = GET_OBJECT_VARIABLE_BY_OFFSET(FVector, character, 2368);
+
+				rotation_ = FVector(head_.X, 0, rot_.Z);
 
 				//location_ = character->RootComponent->RelativeLocation;
 				//rotation_ = character->RootComponent->RelativeRotation;
@@ -1057,11 +1072,11 @@ namespace aimbot {
 			return true;
 		}
 
-		
+
 		if (game_data::my_player.weapon_type_ == game_data::WeaponType::kProjectileArching) {
 			return false;
 		}
-		
+
 
 		if (game_data::my_player.weapon_type_ != game_data::WeaponType::kProjectileArching && game_data::my_player.weapon_type_ != game_data::WeaponType::kProjectileLinear)
 			return false;
@@ -2042,7 +2057,9 @@ void OnDLLProcessAttach(void) {
 #ifdef _DEBUG
 	AllocConsole();
 	freopen("CONOUT$", "w", stdout);
-	std::cout << "DLL injected successfully. Hooking game functions." << std::endl;
+	static plog::ConsoleAppender<plog::TxtFormatter> consoleAppender;
+	plog::init(plog::verbose, &consoleAppender);
+	PLOG_DEBUG << "DLL injected successfully. Hooking game functions.";
 #endif
 
 	HWND hwnd = FindWindowA(NULL, "Tribes 2");
@@ -2136,12 +2153,10 @@ LRESULT WINAPI CustomWindowProcCallback(HWND hWnd, UINT msg, WPARAM wParam, LPAR
 	else {
 		io.MouseDrawCursor = false;
 
-
 		if (*window_locked != previous_window_locked_state && menu_state_changed) {
 			hooks::OriginalSetWindowLocked(previous_window_locked_state);
 			*window_locked = previous_window_locked_state;
 		}
-
 	}
 	return CallWindowProc(original_windowproc_callback, hWnd, msg, wParam, lParam);
 }
