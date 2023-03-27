@@ -28,7 +28,8 @@ An all-in-one installer can be found at [https://www.playt2.com](https://www.pla
 The major discord used for Tribes 2 can be found at [https://www.playt2.com/discord](https://www.playt2.com/discord "https://www.playt2.com/discord").
 
 ## Where can I get Descension Ported To Tribes 2?
-Visist [https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases](https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases "https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases") and download the latest release binaries.
+1. Visit [https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases](https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases "https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases") and download the latest release binaries.
+2. Visit [https://www.unknowncheats.me/forum/other-games/576797-tribes-2-hack-descension-ported-tribes-2-a.html](https://www.unknowncheats.me/forum/other-games/576797-tribes-2-hack-descension-ported-tribes-2-a.html "https://www.unknowncheats.me/forum/other-games/576797-tribes-2-hack-descension-ported-tribes-2-a.html")
 
 ## What do I need to run Descension Ported To Tribes 2?
 The binary is compiled for Windows SDK version 10.0.19041.0 with platform toolset v142 (2019).
@@ -48,9 +49,9 @@ This cheat/hack is superior to any existing Tribes 2 hack currently out there, i
 
 - Aimbot - Self explanetory.
 
-- Triggerbot - Line up your crosshair with the aimassist markers for your weapon to automatically shoot (only works for single fire weapons).
+- Triggerbot - Line up your crosshair with the aim assist markers for your weapon to automatically shoot (only works for single fire weapons).
 
-- Menu - An actual menu/GUI for modifying settings and parameters easily
+- Menu - An actual menu/GUI for modifying settings and parameters easily.
 [![Descension Ported To Tribes 2 menu](https://cdn.discordapp.com/attachments/781674328479367190/1089729454017871963/DescensionPortedToTribes2.png "Descension Ported To Tribes 2 menu")](https://cdn.discordapp.com/attachments/781674328479367190/1089729454017871963/DescensionPortedToTribes2.png "Descension Ported To Tribes 2 menu")
 
 ## How do I use this?
