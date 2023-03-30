@@ -5,7 +5,7 @@
 
 Click the image below to view the video associated with this project.
 <div align="center">
-  <a href="https://www.youtube.com/watch?v=zGVkmLkMg6w"><img src="https://img.youtube.com/vi/zGVkmLkMg6w/0.jpg" alt="IMAGE ALT TEXT"></a>
+  <a href="https://www.youtube.com/watch?v=zGVkmLkMg6w"><img src="https://img.youtube.com/vi/zGVkmLkMg6w/0.jpg" alt=""></a>
 </div>
 
 ## What is Tribes 2?
@@ -28,8 +28,9 @@ An all-in-one installer can be found at [https://www.playt2.com](https://www.pla
 The major discord used for Tribes 2 can be found at [https://www.playt2.com/discord](https://www.playt2.com/discord "https://www.playt2.com/discord").
 
 ## Where can I get Descension Ported To Tribes 2?
-1. Visit [https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases](https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases "https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases") and download the latest release binaries.
-2. Visit [https://www.unknowncheats.me/forum/other-games/576797-tribes-2-hack-descension-ported-tribes-2-a.html](https://www.unknowncheats.me/forum/other-games/576797-tribes-2-hack-descension-ported-tribes-2-a.html "https://www.unknowncheats.me/forum/other-games/576797-tribes-2-hack-descension-ported-tribes-2-a.html")
+~~Visit [https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases](https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases "https://github.com/MuhanjalaRE/DescensionPortedToTribes2/releases") and download the latest release binaries.~~
+
+Visit [https://www.unknowncheats.me/forum/other-games/576797-tribes-2-hack-descension-ported-tribes-2-a.html](https://www.unknowncheats.me/forum/other-games/576797-tribes-2-hack-descension-ported-tribes-2-a.html "https://www.unknowncheats.me/forum/other-games/576797-tribes-2-hack-descension-ported-tribes-2-a.html") and find the download link from that thread.
 
 ## What do I need to run Descension Ported To Tribes 2?
 The binary is compiled for Windows SDK version 10.0.19041.0 with platform toolset v142 (2019).
@@ -71,5 +72,11 @@ The following are the default keybinds. Feel free to modify them to your prefere
 There is currently nothing server-side or client-side that can detect the use of this cheat/hack. However, you can be detected through manual means (such as someone spectating/observing you) which may lead to a ban.
 
 If you're clever then you'll never have to worry about being caught. The only thing that can really causes suspicions is the aimbot. Don't be too blatant - ie. constantly flicking to targets and tearing everyone in the server apart.
+
+## Credits
+**Jazz** - For approaching me to work on this project and helping me test it.
+<div align="center">
+  <a href="https://medal.tv/games/requested/clips/VTMhFZNx29EqH/wqd3Tobcruwo?invite=cr-MSxsaGssMTc4NzY3MzAwLA"><img src="https://cdn.medal.tv/ugcc/content-thumbnail/fes2Cg3LTZiHJ6BE0gGRug-0.jpg?auth=exp=1680201000~data=MzMxODQzNTcsVlRNaEZaTngyOUVxSCw1Ukh3Q3poX0w~hmac=e294d3b05ca6600fed7aca70e7c6c6e197501f1555e4876f84b8a5851f8fc9b4&width=640" alt=""></a>
+</div>
 
 ## Update log
